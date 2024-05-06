@@ -1,4 +1,24 @@
 # 如何使用？ 
+## 一、更新记录
+
+2024年3月22日23:47:22
+
+网址签到sign参数逻辑调整，最新版已支持
+
+2024年3月19日08:41:30
+
+网址签到调整为表单添加sign参数的方式，最新版已支持
+
+2024年3月13日22:57:21
+
+网站签到调整为renji_***.js的验证逻辑，暂无解决方案，项目搁置
+
+2024年3月4日21:35:56
+
+网址签到添加了geetest极验的滑块验证，暂无解决方案，项目搁置
+
+## 二、使用说明
+
 1、Fork项目到自己的仓库
 
 2、点击Settings -> 点击选项卡 Secrets and variables -> 点击Actions -> New repository secret
@@ -28,4 +48,8 @@
 
 hifinisign.yml，调整 \- cron: 20 21 * * *，对应北京时间5:20
 
+5、参考仓库
+
 感谢 https://github.com/Xramas/HiFiNi-Auto-Sign 提供思路
+
+推荐 https://github.com/anduinnn/HiFiNi-Auto-CheckIn 此仓库在持续更新

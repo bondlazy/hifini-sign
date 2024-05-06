@@ -23,4 +23,3 @@ jobs:
           COOKIE3: ${{ secrets.COOKIE3 }}
           BARK_DEVICEKEY: ${{ secrets.BARK_DEVICEKEY }}
           BARK_ICON: ${{ secrets.BARK_ICON }}
-      - uses: gautamkrishnar/keepalive-workflow@master
