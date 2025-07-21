@@ -43,7 +43,6 @@ def bark(device_key, title, content, bark_icon):
 
 def signV1(cookie):
     from curl_cffi import requests as curl_req
-    from curl_cffi.enums import HttpVersion   # 引入枚举
 
     url = "https://www.hifini.com.cn/sg_sign.htm"
     headers = {
@@ -51,7 +50,7 @@ def signV1(cookie):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     }
     try:
-        session = curl_req.Session(impersonate="chrome110", http_version=HttpVersion.v1_1)
+        session = curl_req.Session(impersonate="chrome110", http_version=1)
         response = session.post(url, headers=headers, timeout=15)
         print(response.text)
         return response.text
