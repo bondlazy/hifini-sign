@@ -23,22 +23,22 @@ def bark(device_key, title, content, bark_icon):
         "device_key": device_key
     }
 
-    if not bark_icon:
-        bark_icon = ''
-    if len(bark_icon) > 0:
-        url += '?icon=' + bark_icon
-        print('拼接icon')
-    else:
-        print('不拼接icon')
+    if bark_icon:
+        url += "?icon=" + bark_icon
 
-    resp = requests.post(url, headers=headers, data=json.dumps(data))
-    resp_json = resp.json()
-    if resp_json["code"] == 200:
-        print(f"[Bark]Send message to Bark successfully.")
-    if resp_json["code"] != 200:
-        print(f"[Bark][Send Message Response]{resp.text}")
+    try:
+        resp = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
+        resp_json = resp.json()
+    except Exception as e:
+        print(f"[Bark] 推送失败: {e}")
         return -1
-    return 0
+
+    if resp_json.get("code") == 200:
+        print("[Bark] 推送成功")
+        return 0
+    else:
+        print(f"[Bark] 推送返回: {resp.text}")
+        return -1
 
 
 def signV1(cookie):
@@ -47,11 +47,12 @@ def signV1(cookie):
         'Cookie': cookie,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     }
-    response = requests.post(url, headers=headers)
-
-    print(response.text)
-
-    return response.text
+    try:
+        response = requests.post(url, headers=headers, timeout=10)
+        return response.text
+    except Exception as e:
+        print(f"[signV1] 请求失败: {e}")
+        return "未签到，网络异常"
 
 
 def signV2(cookie, sign):
@@ -78,11 +79,13 @@ def signV2(cookie, sign):
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest'
     }
-    response = requests.request("POST", url, headers=headers, data=payload)
+    try:
+        response = requests.post(url, headers=headers, data=payload, timeout=10)
+        return response.text
+    except Exception as e:
+        print(f"[signV2] 请求失败: {e}")
+        return "未签到，网络异常"
 
-    print(response.text)
-
-    return response.text
 
 def signV3(cookie, sign):
     url = "https://hifini.com.cn/sg_sign.htm"
@@ -105,11 +108,13 @@ def signV3(cookie, sign):
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest'
     }
-    response = requests.request("POST", url, headers=headers, data=payload)
+    try:
+        response = requests.post(url, headers=headers, data=payload, timeout=10)
+        return response.text
+    except Exception as e:
+        print(f"[signV3] 请求失败: {e}")
+        return "未签到，网络异常"
 
-    print(response.text)
-
-    return response.text
 
 def generateDynamicKey():
     current_time = int(time.time() * 1000)
@@ -126,112 +131,75 @@ def simpleEncrypt(input, key):
 
 
 def getMessage(text):
-    message = ''
-
     if "成功签到" in text:
-        message = '成功签到'
-    elif "今天已经签过啦" in text:
-        message = '今天已经签过啦'
-    elif "操作存在风险" in text:
-        message = '未签到，操作存在风险'
-    elif "维护中" in text:
-        message = '未签到，服务器正在维护'
-    elif "请完成验证" in text:
-        message = '未签到，需要手动滑块验证'
-    elif "行为存在风险" in text:
-        message = '未签到，极验geetest页面滑块验证'
-    elif "正在进行人机识别" in text:
-        message = '未签到，页面需要renji.js跳转验证'
-    else:
-        message = '签到结果解析错误'
-
-    return message
+        return '成功签到'
+    if "今天已经签过啦" in text:
+        return '今天已经签过啦'
+    if "操作存在风险" in text:
+        return '未签到，操作存在风险'
+    if "维护中" in text:
+        return '未签到，服务器正在维护'
+    if "请完成验证" in text:
+        return '未签到，需要手动滑块验证'
+    if "行为存在风险" in text:
+        return '未签到，极验geetest页面滑块验证'
+    if "正在进行人机识别" in text:
+        return '未签到，页面需要renji.js跳转验证'
+    return '签到结果解析错误'
 
 
 def sign(cookie, no):
-    pre = '第' + str(no) + '个，'
+    pre = f'第{no}个，'
     if not cookie:
-        cookie = ''
-
-    if len(cookie) > 0:
-        print('有cookie，需要执行签到')
-
-        text = signV1(cookie)
-
-        message = ''
-
-        if "操作存在风险" in text and "encryptedSign" in text:
-            print('V2，再次签到')
-            pattern = r"var sign = \"([a-f0-9]+)\";"
-            match = re.search(pattern, text)
-            if match:
-                sign = match.group(1)
-                if len(sign) > 0:
-                    sm = random.randint(3, 6)
-                    time.sleep(sm)
-
-                    text2 = signV2(cookie, sign)
-                    message = getMessage(text2)
-                else:
-                    message = '未签到，操作存在风险且未能解析出sign'
-            else:
-                message = '未签到，操作存在风险且sign匹配失败'
-        elif "操作存在风险，请稍后重试。" in text and "$.xpost(xn.url('sg_sign'), {'sign':  sign}" in text:
-            print('V3，再次签到')
-            pattern = r"var sign = \"([a-f0-9]+)\";"
-            match = re.search(pattern, text)
-            if match:
-                sign = match.group(1)
-                if len(sign) > 0:
-                    sm = random.randint(3, 6)
-                    time.sleep(sm)
-
-                    text2 = signV3(cookie, sign)
-                    message = getMessage(text2)
-                else:
-                    message = '未签到，操作存在风险且未能解析出sign'
-            else:
-                message = '未签到，操作存在风险且sign匹配失败'
-        else:
-            message = getMessage(text)
-
-        return pre + message
-
-    else:
-        print('不执行签到')
         return ''
+
+    print('有cookie，开始签到...')
+    text = signV1(cookie)
+    message = getMessage(text)
+
+    # V2 加密逻辑
+    if "操作存在风险" in text and "encryptedSign" in text:
+        print('触发 V2 加密签到...')
+        match = re.search(r'var sign = "([a-f0-9]+)";', text)
+        if match:
+            sign_value = match.group(1)
+            time.sleep(random.randint(3, 6))
+            text = signV2(cookie, sign_value)
+            message = getMessage(text)
+        else:
+            message = '未签到，未能提取 sign'
+
+    # V3 明文 sign 逻辑
+    elif "操作存在风险，请稍后重试。" in text and "sign" in text:
+        print('触发 V3 明文签到...')
+        match = re.search(r'var sign = "([a-f0-9]+)";', text)
+        if match:
+            sign_value = match.group(1)
+            time.sleep(random.randint(3, 6))
+            text = signV3(cookie, sign_value)
+            message = getMessage(text)
+        else:
+            message = '未签到，未能提取 sign'
+
+    return pre + message
 
 
 def main():
-    bark_device_key = os.environ.get('BARK_DEVICEKEY')
-    bark_icon = os.environ.get('BARK_ICON')
+    bark_device_key = os.getenv('BARK_DEVICEKEY')
+    bark_icon = os.getenv('BARK_ICON')
 
-    wait = random.randint(3, 110)
-    time.sleep(wait)
+    time.sleep(random.randint(3, 110))
 
-    message_all = []
-    title = 'HiFiNi-签到结果'
-    message = ''
+    messages = []
     for i in range(1, 4):
-        cookie = os.environ.get('COOKIE' + str(i))
+        cookie = os.getenv(f'COOKIE{i}')
         msg = sign(cookie, i)
-        if not msg:
-            msg = ''
-        if len(msg) > 0:
-            message_all.append(msg)
+        if msg:
+            messages.append(msg)
+        time.sleep(random.randint(19, 97))
 
-        sm = random.randint(19, 97)
-        time.sleep(sm)
-
-    if not message_all:
-        message = '暂无执行结果'
-    else:
-        message_all = '\n'.join(message_all)
-        message_all = re.sub('\n+', '\n', message_all).rstrip('\n')
-        message = message_all
-
-    bark(bark_device_key, title, message, bark_icon)
-
+    message = '\n'.join(messages) if messages else '暂无执行结果'
+    bark(bark_device_key, 'HiFiNi-签到结果', message, bark_icon)
     print('finish')
 
 
