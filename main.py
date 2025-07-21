@@ -4,6 +4,7 @@ import random
 import re
 import time
 from urllib.parse import urlencode
+from curl_cffi import requests as curl_req
 
 import requests
 
@@ -42,19 +43,20 @@ def bark(device_key, title, content, bark_icon):
 
 
 def signV1(cookie):
+    from curl_cffi import requests as curl_req
     url = "https://www.hifini.com.cn/sg_sign.htm"
     headers = {
         'Cookie': cookie,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     }
     try:
-        response = requests.post(url, headers=headers, timeout=10)
-        print(response.text)
+        session = curl_req.Session(impersonate="chrome110")
+        response = session.post(url, headers=headers, timeout=15)
+         print(response.text)
         return response.text
     except Exception as e:
         print(f"[signV1] 请求失败: {e}")
         return "未签到，网络异常"
-
 
 def signV2(cookie, sign):
     dynamicKey = generateDynamicKey()
