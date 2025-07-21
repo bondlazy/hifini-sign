@@ -41,7 +41,6 @@ def bark(device_key, title, content, bark_icon):
         print(f"[Bark] 推送返回: {resp.text}")
         return -1
 
-
 def signV1(cookie):
     from curl_cffi import requests as curl_req
 
@@ -58,7 +57,7 @@ def signV1(cookie):
     except Exception as e:
         print(f"[signV1] 请求失败: {e}")
         return "未签到，网络异常"
-
+        
 def signV2(cookie, sign):
     dynamicKey = generateDynamicKey()
     encryptedSign = simpleEncrypt(sign, dynamicKey)
