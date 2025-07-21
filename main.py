@@ -50,7 +50,7 @@ def signV1(cookie):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     }
     try:
-        session = curl_req.Session(impersonate="chrome110")
+        session = curl_req.Session(impersonate="chrome110", http_version="1.1")
         response = session.post(url, headers=headers, timeout=15)
         print(response.text)
         return response.text
