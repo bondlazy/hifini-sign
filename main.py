@@ -42,7 +42,7 @@ def bark(device_key, title, content, bark_icon):
 
 
 def signV1(cookie):
-    url = 'https://www.hifini.com.cn/sg_sign.htm'
+    url = "https://www.hifini.com.cn/sg_sign.htm"
     headers = {
         'Cookie': cookie,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
