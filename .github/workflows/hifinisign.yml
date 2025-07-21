@@ -17,7 +17,7 @@ jobs:
       - name: Install curl_cffi
         run: |
           python -m pip install --upgrade pip
-          pip3 install curl_cffi
+          pip install curl_cffi
       - name: Run sign
         run: |
           python3 ./main.py
