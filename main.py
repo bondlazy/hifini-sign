@@ -44,6 +44,7 @@ def bark(device_key, title, content, bark_icon):
 
 def signV1(cookie):
     from curl_cffi import requests as curl_req
+
     url = "https://www.hifini.com.cn/sg_sign.htm"
     headers = {
         'Cookie': cookie,
