@@ -52,7 +52,7 @@ def signV1(cookie):
     try:
         session = curl_req.Session(impersonate="chrome110")
         response = session.post(url, headers=headers, timeout=15)
-         print(response.text)
+        print(response.text)
         return response.text
     except Exception as e:
         print(f"[signV1] 请求失败: {e}")
