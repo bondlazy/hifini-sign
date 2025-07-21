@@ -49,6 +49,7 @@ def signV1(cookie):
     }
     try:
         response = requests.post(url, headers=headers, timeout=10)
+        print(response.text)
         return response.text
     except Exception as e:
         print(f"[signV1] 请求失败: {e}")
